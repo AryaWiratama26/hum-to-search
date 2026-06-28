@@ -39,41 +39,39 @@ def compute_dtw(seq1, seq2):
 
 def subsequence_dtw(query, reference):
     """
-    Cari bagian dari reference yang paling mirip query.
-    User biasanya cuma humming reff/chorus, bukan full lagu.
-    Jadi kita sliding window scan seluruh lagu.
+    True Subsequence DTW (Open-Begin-End DTW).
+    Mencari sub-sequence terbaik di reference yang cocok dengan query.
+    Sangat akurat untuk matching humming yang hanya di bagian reff/chorus.
     """
-    if len(query) == 0 or len(reference) == 0:
+    n, m = len(query), len(reference)
+    if n == 0 or m == 0:
         return float('inf')
 
-    # Kalau query lebih panjang dari reference, pakai DTW biasa
-    if len(query) >= len(reference):
+    # Jika query lebih panjang dari reference, lakukan DTW standar
+    if n >= m:
         return compute_dtw(query, reference)
 
-    best_distance = float('inf')
-    window_size = len(query)
+    # Inisialisasi cost matrix dengan infinity
+    dtw = np.full((n + 1, m + 1), np.inf)
+    
+    # Baris pertama = 0 (membolehkan pencocokan mulai dari indeks mana saja di reference)
+    dtw[0, :] = 0
+    dtw[0, 0] = 0
 
-    # Sliding window: geser window sepanjang reference
-    # Step > 1 biar gak terlalu lambat di lagu panjang
-    step = max(1, window_size // 4)
-    for start in range(0, len(reference) - window_size + 1, step):
-        segment = reference[start:start + window_size]
-        dist = compute_dtw(query, segment)
-        if dist < best_distance:
-            best_distance = dist
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            cost = abs(query[i - 1] - reference[j - 1])
+            dtw[i, j] = cost + min(
+                dtw[i - 1, j],      # insertion (skip di query)
+                dtw[i, j - 1],      # deletion (skip di reference)
+                dtw[i - 1, j - 1]   # match
+            )
 
-    # Coba juga window yang sedikit lebih besar/kecil (toleransi panjang)
-    for scale in [0.8, 1.2]:
-        scaled_window = int(window_size * scale)
-        if scaled_window < 3 or scaled_window > len(reference):
-            continue
-        for start in range(0, len(reference) - scaled_window + 1, step):
-            segment = reference[start:start + scaled_window]
-            dist = compute_dtw(query, segment)
-            if dist < best_distance:
-                best_distance = dist
-
-    return best_distance
+    # Ambil nilai minimum dari baris terakhir (titik akhir pencocokan terbaik)
+    min_dist = np.min(dtw[n, 1:])
+    
+    # Normalisasi jarak dengan membaginya dengan panjang query
+    return min_dist / n
 
 
 def distance_to_confidence(distance, max_distance=8.0):
