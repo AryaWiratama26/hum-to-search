@@ -4,9 +4,25 @@ Extract melody dari setiap lagu, simpan ke data/songs.json
 """
 
 import os
+# Load .env secara manual untuk membaca FFMPEG_PATH
+venv_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(venv_dir, '.env')
+if os.path.exists(env_path):
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ[key.strip()] = val.strip()
+
+ffmpeg_bin = os.environ.get("FFMPEG_PATH")
+if ffmpeg_bin and os.path.exists(ffmpeg_bin) and ffmpeg_bin not in os.environ["PATH"]:
+    os.environ["PATH"] = ffmpeg_bin + os.path.pathsep + os.environ["PATH"]
+
 import json
 import time
 import subprocess
+
 from .pitch_detector import detect_pitch_from_file
 from .melody_extractor import extract_melody, smooth_melody
 
@@ -30,7 +46,14 @@ def separate_vocals(filepath):
     print(f"Memisahkan vokal menggunakan Demucs CLI...")
     
     # demucs --two-stems=vocals memisahkan menjadi vokal + accompaniment
-    cmd = ["demucs", "--two-stems=vocals", "-o", separated_dir, filepath]
+    # Tentukan path executable demucs di dalam venv (Windows)
+    demucs_bin = "demucs"
+    venv_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_demucs = os.path.join(venv_dir, 'venv', 'Scripts', 'demucs.exe')
+    if os.path.exists(venv_demucs):
+        demucs_bin = venv_demucs
+
+    cmd = [demucs_bin, "--two-stems=vocals", "-o", separated_dir, filepath]
     
     try:
         # Jalankan secara terpisah (stdout/stderr di-mute agar log tidak berantakan)

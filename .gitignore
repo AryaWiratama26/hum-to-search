@@ -3,3 +3,4 @@ __pycache__
 notes.txt
 pitch.md
 uploads/
+.env

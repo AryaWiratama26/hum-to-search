@@ -1,6 +1,21 @@
 import os
 import io
 import numpy as np
+
+# Load .env secara manual untuk membaca FFMPEG_PATH
+env_path = '.env'
+if os.path.exists(env_path):
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ[key.strip()] = val.strip()
+
+ffmpeg_bin = os.environ.get("FFMPEG_PATH")
+if ffmpeg_bin and os.path.exists(ffmpeg_bin) and ffmpeg_bin not in os.environ["PATH"]:
+    os.environ["PATH"] = ffmpeg_bin + os.path.pathsep + os.environ["PATH"]
+
 import librosa
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
