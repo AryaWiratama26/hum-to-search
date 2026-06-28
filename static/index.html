@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hum to Search</title>
+    <meta name="description" content="Cari lagu dengan humming">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hum to Search</h1>
+            <p class="subtitle">senandungkan lagu, biar kita tebak</p>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="search" id="tab-search">
+                <i class="ph ph-microphone"></i> Search
+            </button>
+            <button class="tab" data-tab="setup" id="tab-setup">
+                <i class="ph ph-gear"></i> Setup
+            </button>
+        </nav>
+
+        <!-- Search Tab -->
+        <section id="panel-search" class="panel active">
+            <div class="search-area">
+                <canvas id="waveform" width="600" height="120"></canvas>
+                
+                <button id="btn-record" class="record-btn">
+                    <i class="ph ph-microphone"></i>
+                </button>
+                <p id="record-status" class="status-text">tekan untuk mulai</p>
+                <p id="record-timer" class="timer-text"></p>
+            </div>
+
+            <div id="results" class="results hidden">
+                <h2>Hasil</h2>
+                <div id="results-list"></div>
+            </div>
+
+            <div id="no-db-warning" class="warning hidden">
+                <i class="ph ph-warning"></i>
+                <p>Database kosong. Pindah ke tab <strong>Setup</strong> untuk process lagu dulu.</p>
+            </div>
+        </section>
+
+        <!-- Setup Tab -->
+        <section id="panel-setup" class="panel">
+            <div class="setup-area">
+                <div class="setup-info">
+                    <p>Taruh file MP3 di folder <code>songs/</code> lalu klik tombol di bawah untuk extract melody.</p>
+                    <p id="mp3-count" class="meta"></p>
+                </div>
+
+                <button id="btn-process" class="process-btn">
+                    <i class="ph ph-lightning"></i> Process Songs
+                </button>
+                <p id="process-status" class="status-text"></p>
+
+                <div id="song-list" class="song-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/js/recorder.js"></script>
+    <script src="/js/visualizer.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
