@@ -85,14 +85,14 @@ def match():
             confidence_threshold=0.3  # lebih rendah buat humming (suara lebih pelan)
         )
 
-        if len(melody['intervals']) < 3:
+        if len(melody['notes']) < 3:
             return jsonify({
                 'status': 'error',
                 'message': 'Melody terlalu pendek. Coba humming lebih lama (5-10 detik).'
             }), 400
 
-        # Match
-        results = match_all(melody['intervals'], db, top_n=5)
+        # Match (menggunakan absolute notes + Key Normalization)
+        results = match_all(melody['notes'], db, top_n=5)
 
         return jsonify({
             'status': 'ok',
